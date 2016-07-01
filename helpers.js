@@ -74,6 +74,13 @@
             
         },
         
+        getElement: function(element, by) {
+            var element = this.getElements(element, by)
+            if(element.length) {
+                return element[0];   
+            }
+        },
+        
         // element -> array
         // replaceElement -> string
         // attributes -> object
@@ -81,17 +88,18 @@
             
             try {
             
-                var elements = this.getElements(element, 'byTag');
+                var id = 'unitCircle_' + Math.random();
+                var element = this.getElement(element, 'byTag');
                 var repalce = document.createElement(replaceElement);
                 
-                for(var i = 0; i < elements.length; i++) {
-                    
-                    for(var key in attributes) {
-                        repalce.setAttribute(key, attributes[key]);
-                    }
-                    
-                    elements[i].parentNode.replaceChild(repalce, elements[i]);
+                element.setAttribute('id', id);
+                
+                for(var key in attributes) {
+                    repalce.setAttribute(key, attributes[key]);
+                    repalce.setAttribute('id', id)
                 }
+                
+                element.parentNode.replaceChild(repalce, element);
                 
             } catch(error) {
                 console.warn(error);

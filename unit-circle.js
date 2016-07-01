@@ -52,8 +52,6 @@
     Canvas.prototype.append = function() {
         var parameters = this.parameters.get();
         
-        console.log(parameters);
-        
         for(var i = 0; i < parameters.length; i++) {
             this.config.set(parameters[i]);
             
@@ -64,8 +62,6 @@
         if(!parameters) {
             return console.warn(this.htmlSample);
         }
-        
-        console.log(this);
     };
     
     Canvas.prototype.render = {};
