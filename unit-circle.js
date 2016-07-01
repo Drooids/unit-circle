@@ -24,6 +24,7 @@
             "height": 600,
             "style": 'box-shadow: 1px 0px 5px #ccc; margin: 5px; vertical-align: top;'
         },
+        // parameters -> object
         set: function(parameters) {
             for(var pkey in parameters) {
                 for(var ckey in this.value) {
@@ -32,6 +33,10 @@
                     }
                 }
             }
+            
+        },
+        // element_id -> string
+        get: function(canvas_id) {
             
         }
     };

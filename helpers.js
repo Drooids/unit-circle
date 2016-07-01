@@ -28,6 +28,26 @@
             }
         },
         
+        // element -> string
+        // by -> string
+        getElements: function(element, by) {
+            if(this.isElement(element, by)) {
+                switch (by) {
+                    case 'byTag':
+                        return document.getElementsByTagName(element);
+                }
+            }
+        },
+        
+        // element -> string
+        // by -> string
+        getElement: function(element, by) {
+            var element = this.getElements(element, by)
+            if(element.length) {
+                return element[0];   
+            }
+        },
+        
         // tag -> string
         // properties -> array
         getDirective: function(tag, properties) {
@@ -35,7 +55,7 @@
             try {
                     
                 var elements = [];
-                var htmlElements = document.getElementsByTagName(tag);
+                var htmlElements = this.getElements(tag, 'byTag');
                 
                 for(var i = 0; i < htmlElements.length; i++) {
                     var obj = {};
@@ -61,26 +81,6 @@
             
         },
         
-        // element -> string
-        // by -> string
-        getElements: function(element, by) {
-            
-            if(this.isElement(element, by)) {
-                switch (by) {
-                    case 'byTag':
-                        return document.getElementsByTagName(element);
-                }
-            }
-            
-        },
-        
-        getElement: function(element, by) {
-            var element = this.getElements(element, by)
-            if(element.length) {
-                return element[0];   
-            }
-        },
-        
         // element -> array
         // replaceElement -> string
         // attributes -> object
@@ -93,10 +93,10 @@
                 var repalce = document.createElement(replaceElement);
                 
                 element.setAttribute('id', id);
+                repalce.setAttribute('id', id);
                 
                 for(var key in attributes) {
                     repalce.setAttribute(key, attributes[key]);
-                    repalce.setAttribute('id', id)
                 }
                 
                 element.parentNode.replaceChild(repalce, element);
