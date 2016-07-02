@@ -10,11 +10,30 @@
         
         isEmpty: function(object) {
             if(!this.isObject(object)) {
-                return console.log("Not an object: " + typeof object);
+                return console.warn("Not an object: " + typeof object);
             }
             
             return Object.keys(object).length;
         }  
+    };
+    
+    Helpers.prototype.generateId = function(prefix, length) {
+        var text = "";
+        
+        if(length == undefined) {
+            length = 5;
+        }
+        
+        if(prefix != undefined) {
+            text += prefix;
+        }
+        
+        var possible = "abcdefghijklmnopqrstuvwxyz0123456789";
+    
+        for( var i=0; i < length; i++ )
+            text += possible.charAt(Math.floor(Math.random() * possible.length));
+    
+        return text;
     };
     
     Helpers.prototype.dom = {
@@ -37,6 +56,8 @@
                         return document.getElementsByTagName(element);
                 }
             }
+            
+            return [];
         },
         
         // element -> string
@@ -83,23 +104,20 @@
         
         // element -> array
         // replaceElement -> string
+        // id -> string
         // attributes -> object
         replaceElement: function(element, replaceElement, attributes) {
             
             try {
-            
-                var id = 'unitCircle_' + Math.random();
-                var element = this.getElement(element, 'byTag');
-                var repalce = document.createElement(replaceElement);
                 
-                element.setAttribute('id', id);
-                repalce.setAttribute('id', id);
+                var element = this.getElement(element, 'byTag');
+                var replace = document.createElement(replaceElement);
                 
                 for(var key in attributes) {
-                    repalce.setAttribute(key, attributes[key]);
+                    replace.setAttribute(key, attributes[key]);
                 }
                 
-                element.parentNode.replaceChild(repalce, element);
+                element.parentNode.replaceChild(replace, element);
                 
             } catch(error) {
                 console.warn(error);
