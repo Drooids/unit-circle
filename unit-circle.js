@@ -9,6 +9,7 @@
     // Canvas
     
     function Canvas() {
+        
         _Canvas_this = this;
         
         this.name = 'unit-circle';
@@ -16,6 +17,26 @@
         this.htmlSample = 'Please include: ' + '<' + this.name + '>' + '</' + this.name + '>';
     
         this.tag = this.name;
+        
+        Canvas.listeners = {
+            onRender: [], 
+            onUpdate: [],
+            
+            onMouseEnter: [],
+            onMouseLeave: [],
+            onMouseMove: [],
+            
+            onDoubleClick: [],
+            onKeyDown: [],
+            onKeyUp: [],
+            onHover: []
+        };
+        
+        Canvas.executeListeners = function(methodName) {
+            for (var i = 0, len = Canvas.listeners[methodName].length; i < len; i++)
+                Canvas.listeners[methodName][i].apply(this);
+        };
+        
     }
     
     Canvas.prototype.canvas = {
@@ -251,11 +272,15 @@
                     ctx.fillText("Delta u: " + this.du, 0, 20);
                 }
             }
+            
+            Canvas.executeListeners.call(this, 'onRender');
         },
         
         update: function(dt) {
             this.dt = dt;
             this.du = (dt / this._NOMINAL_UPDATE_INTERVAL);
+            
+             Canvas.executeListeners.call(this, 'onUpdate');
         },
         
         iter: function(frameTime) {
@@ -289,42 +314,47 @@
     };
     
     Canvas.prototype.main = function() {
+        // Replace <unit-circle>
         this.append();
+        
+        // Events
         this.events.register();
+        
+        // Animation/Game loop
         this.iteration.main();  
     };
-    
-    var g_canvas = new Canvas();
     
     // Unit Circle
     
     function UnitCircle() {
         _UnitCircle_this = this;
+        
+        this.radius = 0;
+        
+        Canvas.listeners.onUpdate.push(this.update);
+        Canvas.listeners.onRender.push(this.render);
     }
     
     // Inherit canvas
     UnitCircle.prototype = new Canvas();
     
-    UnitCircle.prototype.radius = function() {
-    };
-    
     UnitCircle.prototype.update = function() {
     };
     
-    UnitCircle.prototype.render = function(ctx) {
+    UnitCircle.prototype.render = function() {
     };
     
     UnitCircle.prototype.main = function() {
     };
     
-    var g_unitCircle = new UnitCircle();
-    
     // Kick start
     
     window.onload = function() {
-        g_canvas.main();
+        var canvas = new Canvas();
+        var unitCircle = new UnitCircle();
         
-        window.g_canvas = g_canvas;
+        canvas.main();
+        unitCircle.main();
     };
     
 })(window);
