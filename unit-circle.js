@@ -19,6 +19,12 @@
     }
     
     Canvas.prototype.canvas = {
+        getAll: function() {
+            var _this = _Canvas_this;
+            
+            // Config list already contains canvas and ctx
+            return _this.config.list;
+        },
         getActive: function() {
             var _this = _Canvas_this;
             
@@ -27,15 +33,28 @@
                     return _this.config.list[key];
                 }
             }
+        },
+        // config -> object
+        build: function(config) {
+            var canvas = document.getElementById(config.id);
+            
+            config.canvas = canvas;
+            config.ctx = canvas.getContext('2d');
         }
     };
 
     Canvas.prototype.config = {
         default: {
+            "canvas": {},
+            "ctx": {},
+            
             "id": 0,
-            "width": 600,
-            "height": 600,
-            "style": 'box-shadow: 1px 0px 5px #ccc; margin: 5px; vertical-align: top;',
+            "width": 400,
+            "height": 400,
+            "style": 'box-shadow: 1px 0px 5px #ccc;\
+                        margin:5px;\
+                        vertical-align: top;',
+            
             "mouse": {
                 "x": 0,
                 "y": 0
@@ -46,8 +65,9 @@
                 // key -> string
                 // keyCode -> integer
                 // pressed -> boolean
-                "keys": [],
+                "keys": {},
             },
+            
             "active": false
         },
         
@@ -55,14 +75,12 @@
         
         // parameters -> object
         merge: function(parameters) {
-            var config = {};
             
-            for(var key in this.default) {
-                config[key] = this.default[key];
-            }
+            // Scope issue
+            var config = JSON.parse(JSON.stringify(this.default));
             
             for(var pkey in parameters) {
-                for(var ckey in this.default) {
+                for(var ckey in config) {
                     if(pkey == ckey) {
                         config[ckey] = parameters[pkey];
                     }
@@ -84,11 +102,13 @@
     };
     
     Canvas.prototype.parameters = {
+        default: ['width', 'height', 'style'],
+        
         get: function() {
             var _this = _Canvas_this;
             
             /* global Helpers */
-            return Helpers.dom.getDirective(_this.tag, ['width', 'height']);
+            return Helpers.dom.getDirective(_this.tag, this.default);
         }
     };
     
@@ -100,8 +120,8 @@
             
             var canvas = _this.config.get(event.target.id);
             
-            canvas.mouse.x = event.clientX - event.target.offsetLeft;
-            canvas.mouse.y = event.clientY - event.target.offsetTop;
+            canvas.mouse.x = event.pageX - event.target.offsetLeft;
+            canvas.mouse.y = event.pageY - event.target.offsetTop;
         },
         handleMouseEnter: function(event) {
             var _this = _Canvas_this;
@@ -150,7 +170,7 @@
                     pressed: true
                 };
                 
-                canvas.keyboard.keys.push(key);
+                canvas.keyboard.keys[event.keyCode] = key;
                 canvas.keyboard.pressed = true;
             }
         },
@@ -190,37 +210,121 @@
             parameters[i]['id'] = Helpers.generateId('unitCircle_');
         
             var config = this.config.merge(parameters[i]);
-            this.config.save(config);
             
             /* global Helpers */  
             Helpers.dom.replaceElement(this.tag, 'canvas', config);
+            
+            this.config.save(config);
+            
+            this.canvas.build(config);
         }
         
     };
     
-    Canvas.prototype.render = {};
-    Canvas.prototype.update = {};
+    Canvas.prototype.iteration = {
+        
+        // Delta time
+        dt: null,
+        
+        // Delta u, where u represents time in multiples of our nominal interval
+        du: null,
+        
+        _NOMINAL_UPDATE_INTERVAL: 16.666,
+        _frameTime_ms: null,
+        _frameTimeDelta_ms: null,
+        
+        _debug: false,
+        
+        clear: function(ctx) {
+            var prevfillStyle = ctx.fillStyle;
+            ctx.fillStyle = "white";
+            ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            ctx.fillStyle = prevfillStyle;
+        },
+        
+        render: function(ctx) {
+            this.clear(ctx);
+            
+            if(this._debug) {
+                if(ctx) {
+                    ctx.fillText("Delta time: " + this.dt, 0, 10);
+                    ctx.fillText("Delta u: " + this.du, 0, 20);
+                }
+            }
+        },
+        
+        update: function(dt) {
+            this.dt = dt;
+            this.du = (dt / this._NOMINAL_UPDATE_INTERVAL);
+        },
+        
+        iter: function(frameTime) {
+            var _this = _Canvas_this;
+            var canvases = _this.canvas.getAll();
+            
+            if(_this._frameTime_ms === null) {
+                _this._frameTime_ms = frameTime;
+            }
+            
+            _this._frameTimeDelta_ms = frameTime - _this._frameTime_ms;
+            _this._frameTime_ms = frameTime;
+            
+            _this.iteration.update(_this._frameTimeDelta_ms);
+            
+            for(var key in canvases) {
+                _this.iteration.render(canvases[key]['ctx']);
+            }
+            
+            _this.iteration._requestNextIteration();
+        },
+        
+        _requestNextIteration: function() {
+             window.requestAnimationFrame(this.iter);
+        },
+        
+        main: function() {
+            this._requestNextIteration();
+        },
+        
+    };
     
     Canvas.prototype.main = function() {
         this.append();
         this.events.register();
+        this.iteration.main();  
     };
     
-    var canvas = new Canvas();
+    var g_canvas = new Canvas();
     
     // Unit Circle
     
     function UnitCircle() {
         _UnitCircle_this = this;
-        Canvas.call(this);
     }
     
-    UnitCircle.prototype = Object.create(Canvas.prototype);
+    // Inherit canvas
+    UnitCircle.prototype = new Canvas();
+    
+    UnitCircle.prototype.radius = function() {
+    };
+    
+    UnitCircle.prototype.update = function() {
+    };
+    
+    UnitCircle.prototype.render = function(ctx) {
+    };
+    
+    UnitCircle.prototype.main = function() {
+    };
+    
+    var g_unitCircle = new UnitCircle();
     
     // Kick start
     
     window.onload = function() {
-        canvas.main();
+        g_canvas.main();
+        
+        window.g_canvas = g_canvas;
     };
     
 })(window);
