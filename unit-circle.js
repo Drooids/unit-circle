@@ -351,8 +351,8 @@
         this.offset = 50;
         this.x = 0;
         this.y = 0;
-        this.diffX = 0;
-        this.diffY = 0;
+        this.deltaX = 0;
+        this.deltaY = 0;
         this.sinTheta = 0;
         this.cosTheta = 0;
         this.angleRad = 0;
@@ -373,10 +373,10 @@
 
             _this.radius = (canvas.width / 2);
 
-            _this.diffX = ((_this.radius) - canvas.mouse.x);
-            _this.diffY = ((_this.radius) - canvas.mouse.y);
+            _this.deltaX = ((_this.radius) - canvas.mouse.x);
+            _this.deltaY = ((_this.radius) - canvas.mouse.y);
 
-            _this.angleRad = Math.atan((_this.diffY) / (_this.diffX));
+            _this.angleRad = Math.atan((_this.deltaY) / (_this.deltaX));
             _this.angleDegrees = _this.angleRad * 180 / Math.PI;
 
             _this.cosTheta = Math.cos(_this.angleRad);
@@ -402,7 +402,7 @@
             canvas.ctx.moveTo(_this.radius, _this.radius);
 
             // Second quadrant
-            if(_this.diffX > 0) {
+            if(_this.deltaX > 0) {
                 _this.x = -_this.x;
                 _this.y = -_this.y;
             }
