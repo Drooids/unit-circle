@@ -394,15 +394,19 @@
 
         if(canvas) {
 
-            // Start Drawing
-
             canvas.ctx.beginPath();
 
             // Center point
             canvas.ctx.moveTo(_this.radius, _this.radius);
 
             // Second quadrant
-            if(_this.deltaX > 0) {
+            if(_this.deltaX > 0 && _this.deltaY > 0) {
+                _this.x = -_this.x;
+                _this.y = -_this.y;
+            }
+
+            // Third quadrant
+            if(_this.deltaX > 0 && _this.deltaY < 0) {
                 _this.x = -_this.x;
                 _this.y = -_this.y;
             }
