@@ -89,7 +89,12 @@
                 "keys": {},
             },
             
-            "active": false
+            "active": false,
+            
+            "disable": {
+                "render": false,
+                "update": false
+            }
         },
         
         list: {},
@@ -235,9 +240,9 @@
             /* global Helpers */  
             Helpers.dom.replaceElement(this.tag, 'canvas', config);
             
-            this.config.save(config);
-            
             this.canvas.build(config);
+            
+            this.config.save(config);
         }
         
     };
@@ -263,13 +268,15 @@
             ctx.fillStyle = prevfillStyle;
         },
         
-        render: function(ctx) {
-            this.clear(ctx);
+        render: function(canvas) {
+            if(!canvas.active) return;
+            
+            this.clear(canvas.ctx);
             
             if(this._debug) {
-                if(ctx) {
-                    ctx.fillText("Delta time: " + this.dt, 0, 10);
-                    ctx.fillText("Delta u: " + this.du, 0, 20);
+                if(canvas) {
+                    canvas.ctx.fillText("Delta time: " + this.dt, 0, 10);
+                    canvas.ctx.fillText("Delta u: " + this.du, 0, 20);
                 }
             }
             
@@ -283,9 +290,11 @@
              Canvas.executeListeners.call(this, 'onUpdate');
         },
         
-        iter: function(frameTime) {
+        _iter: function(frameTime) {
             var _this = _Canvas_this;
             var canvases = _this.canvas.getAll();
+            
+            // Frame time and deltas
             
             if(_this._frameTime_ms === null) {
                 _this._frameTime_ms = frameTime;
@@ -294,17 +303,21 @@
             _this._frameTimeDelta_ms = frameTime - _this._frameTime_ms;
             _this._frameTime_ms = frameTime;
             
+            // Update
+            
             _this.iteration.update(_this._frameTimeDelta_ms);
             
+            // Render
+            
             for(var key in canvases) {
-                _this.iteration.render(canvases[key]['ctx']);
+                _this.iteration.render(canvases[key]);
             }
             
             _this.iteration._requestNextIteration();
         },
         
         _requestNextIteration: function() {
-             window.requestAnimationFrame(this.iter);
+             window.requestAnimationFrame(this._iter);
         },
         
         main: function() {
@@ -339,12 +352,23 @@
     UnitCircle.prototype = new Canvas();
     
     UnitCircle.prototype.update = function() {
+        var canvas = _UnitCircle_this.canvas.getActive();
     };
     
     UnitCircle.prototype.render = function() {
+        var canvas = _UnitCircle_this.canvas.getActive();
+        var radius = 150;
+        
+        if(canvas) {
+        }
     };
     
     UnitCircle.prototype.main = function() {
+        var canvases = _UnitCircle_this.canvas.getAll();
+
+        for(var key in canvases) {
+            // Set up...
+        }
     };
     
     // Kick start
