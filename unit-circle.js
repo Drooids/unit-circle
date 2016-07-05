@@ -226,30 +226,7 @@
         }
     };
 
-    Canvas.prototype.append = function() {
-        var parameters = this.parameters.get();
-
-        if(!parameters.length) {
-            return console.warn(this.htmlSample);
-        }
-
-        for(var i = 0; i < parameters.length; i++) {
-            parameters[i]['id'] = Helpers.generateId('unitCircle_');
-
-            var config = this.config.merge(parameters[i]);
-
-            /* global Helpers */
-            Helpers.dom.replaceElement(this.tag, 'canvas', config);
-
-            this.canvas.build(config);
-
-            this.config.save(config);
-        }
-
-    };
-
     Canvas.prototype.iteration = {
-
         // Delta time
         dt: null,
 
@@ -327,8 +304,28 @@
 
         main: function() {
             this._requestNextIteration();
-        },
+        }
+    };
 
+    Canvas.prototype.append = function() {
+        var parameters = this.parameters.get();
+
+        if(!parameters.length) {
+            return console.warn(this.htmlSample);
+        }
+
+        for(var i = 0; i < parameters.length; i++) {
+            parameters[i]['id'] = Helpers.generateId('unitCircle_');
+
+            var config = this.config.merge(parameters[i]);
+
+            /* global Helpers */
+            Helpers.dom.replaceElement(this.tag, 'canvas', config);
+
+            this.canvas.build(config);
+
+            this.config.save(config);
+        }
     };
 
     Canvas.prototype.main = function() {
@@ -370,7 +367,6 @@
         var canvas = _this.canvas.getActive();
 
         if(canvas) {
-
             _this.radius = (canvas.width / 2);
 
             _this.deltaX = ((_this.radius) - canvas.mouse.x);
@@ -384,7 +380,6 @@
 
             _this.x = _this.cosTheta * _this.radius;
             _this.y = _this.sinTheta * _this.radius;
-
         }
     };
 
@@ -393,7 +388,6 @@
         var canvas = _UnitCircle_this.canvas.getActive();
 
         if(canvas) {
-
             canvas.ctx.beginPath();
 
             // Center point
@@ -424,7 +418,6 @@
             canvas.ctx.lineTo(_this.radius, _this.radius);
 
             canvas.ctx.stroke();
-
         }
     };
 
