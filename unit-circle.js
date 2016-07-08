@@ -78,7 +78,9 @@
 
             "mouse": {
                 "x": 0,
-                "y": 0
+                "y": 0,
+                "startX": 0,
+                "startY": 0,
             },
             "keyboard": {
                 "pressed": false,
@@ -149,6 +151,16 @@
 
             canvas.mouse.x = event.pageX - event.target.offsetLeft;
             canvas.mouse.y = event.pageY - event.target.offsetTop;
+
+            if(canvas.mouse.startX) {
+                canvas.mouse.x = -(canvas.mouse.startX - canvas.mouse.x);
+            }
+
+            if(canvas.mouse.startY) {
+                canvas.mouse.y = canvas.mouse.startY - canvas.mouse.y;
+            }
+
+            Canvas.executeListeners.call(this, 'onMouseMove');
         },
         handleMouseEnter: function(event) {
             var _this = _Canvas_this;
@@ -344,19 +356,29 @@
     function UnitCircle() {
         _UnitCircle_this = this;
 
+        this.width = 0;
+        this.height = 0;
+        this.widthRatio = 1;
+        this.heightRatio = 1;
+
         this.radius = 0;
-        this.offset = 50;
+
+        this.offset = 0.8;
+
         this.x = 0;
         this.y = 0;
-        this.deltaX = 0;
-        this.deltaY = 0;
+
         this.sinTheta = 0;
         this.cosTheta = 0;
+        this.slope = 0;
         this.angleRad = 0;
         this.angleDegrees = 0;
+        this.outerAngleRad = 0;
+        this.outerAngleDegrees = 0;
 
         Canvas.listeners.onUpdate.push(this.update);
         Canvas.listeners.onRender.push(this.render);
+        Canvas.listeners.onMouseMove.push(this.onMouseMove);
     }
 
     // Inherit canvas
@@ -367,20 +389,35 @@
         var canvas = _this.canvas.getActive();
 
         if(canvas) {
-            _this.radius = (canvas.width / 2);
+            _this.width = canvas.width / 2;
+            _this.height = canvas.height / 2;
 
-            _this.deltaX = ((_this.radius) - canvas.mouse.x);
-            _this.deltaY = ((_this.radius) - canvas.mouse.y);
+            _this.widthRatio = _this.width / _this.height;
+            _this.heightRatio = _this.height / _this.width;
 
-            _this.angleRad = Math.atan((_this.deltaY) / (_this.deltaX));
-            _this.angleDegrees = _this.angleRad * 180 / Math.PI;
+            _this.slope = Math.atan2(canvas.mouse.y, canvas.mouse.x);
 
-            _this.cosTheta = Math.cos(_this.angleRad);
-            _this.sinTheta = Math.sin(_this.angleRad);
+            _this.angleRad = _this.slope;
+            _this.angleDegrees = _this.slope * 180 / Math.PI;
 
-            _this.x = _this.cosTheta * _this.radius;
-            _this.y = _this.sinTheta * _this.radius;
+            _this.cosTheta = Math.cos(_this.slope);
+            _this.sinTheta = Math.sin(-_this.slope);
+
+            _this.x = _this.cosTheta * _this.width * _this.offset;
+            _this.y = _this.sinTheta * _this.height * _this.offset;
+
+            if(_this.widthRatio > _this.heightRatio) {
+                _this.x = _this.x * _this.heightRatio;
+                _this.radius = _this.width * _this.heightRatio;
+            } else {
+                _this.y = _this.y * _this.widthRatio;
+                _this.radius = _this.height * _this.widthRatio;
+            }
+
+            _this.x = _this.x + _this.width;
+            _this.y = _this.y + _this.height;
         }
+
     };
 
     UnitCircle.prototype.render = function() {
@@ -390,42 +427,26 @@
         if(canvas) {
             canvas.ctx.beginPath();
 
-            // Center point
-            canvas.ctx.moveTo(_this.radius, _this.radius);
-
-            // Second quadrant
-            if(_this.deltaX > 0 && _this.deltaY > 0) {
-                _this.x = -_this.x;
-                _this.y = -_this.y;
-            }
-
-            // Third quadrant
-            if(_this.deltaX > 0 && _this.deltaY < 0) {
-                _this.x = -_this.x;
-                _this.y = -_this.y;
-            }
-
-            if(_this.angleDegrees == 90 || _this.angleDegrees == -90) {
-                _this.x = -_this.x;
-                _this.y = -_this.y;
-            }
-
-            _this.x = _this.x + _this.radius;
-            _this.y = _this.y + _this.radius;
+            canvas.ctx.moveTo(_this.width, _this.height);
 
             canvas.ctx.lineTo(_this.x, _this.y);
-            canvas.ctx.lineTo(_this.x, _this.radius);
-            canvas.ctx.lineTo(_this.radius, _this.radius);
+            canvas.ctx.lineTo(_this.x, _this.height);
+            canvas.ctx.lineTo(_this.width, _this.height);
 
             canvas.ctx.stroke();
         }
+    };
+
+    UnitCircle.prototype.onMouseMove = function() {
+        var _this = _UnitCircle_this;
     };
 
     UnitCircle.prototype.main = function() {
         var canvases = _UnitCircle_this.canvas.getAll();
 
         for(var key in canvases) {
-            // Set up...
+            canvases[key].mouse.startX = canvases[key].width / 2;
+            canvases[key].mouse.startY = canvases[key].height / 2;
         }
     };
 
@@ -439,6 +460,7 @@
         unitCircle.main();
 
         window.canvas = canvas;
+        window.unitCircle = unitCircle;
     };
 
 })(window);
