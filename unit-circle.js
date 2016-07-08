@@ -408,10 +408,10 @@
 
             if(_this.widthRatio > _this.heightRatio) {
                 _this.x = _this.x * _this.heightRatio;
-                _this.radius = _this.width * _this.heightRatio;
+                _this.radius = _this.width * _this.heightRatio * _this.offset;
             } else {
                 _this.y = _this.y * _this.widthRatio;
-                _this.radius = _this.height * _this.widthRatio;
+                _this.radius = _this.height * _this.widthRatio * _this.offset;
             }
 
             _this.x = _this.x + _this.width;
@@ -425,15 +425,42 @@
         var canvas = _UnitCircle_this.canvas.getActive();
 
         if(canvas) {
+
+            // Circle
+
+            canvas.ctx.save();
+
+            canvas.ctx.beginPath();
+            canvas.ctx.arc(_this.width, _this.height, _this.radius, 0, 2 * Math.PI, true);
+            canvas.ctx.strokeStyle = '#ccc';
+            canvas.ctx.stroke();
+            canvas.ctx.closePath();
+
+            canvas.ctx.restore();
+
+            // Triangle
+
             canvas.ctx.beginPath();
 
             canvas.ctx.moveTo(_this.width, _this.height);
-
             canvas.ctx.lineTo(_this.x, _this.y);
             canvas.ctx.lineTo(_this.x, _this.height);
             canvas.ctx.lineTo(_this.width, _this.height);
-
             canvas.ctx.stroke();
+
+            canvas.ctx.closePath();
+
+            // Little vertex circle
+
+            canvas.ctx.beginPath();
+
+            canvas.ctx.arc(_this.x, _this.y, 5, 0, 2 * Math.PI, true);
+            canvas.ctx.fillStyle = '#ccc';
+            canvas.ctx.stroke();
+            canvas.ctx.fill();
+
+            canvas.ctx.closePath();
+
         }
     };
 
