@@ -400,6 +400,14 @@
             _this.angleRad = _this.slope;
             _this.angleDegrees = _this.slope * 180 / Math.PI;
 
+            _this.outerAngleRad = _this.angleRad;
+            _this.outerAngleDegrees = _this.angleDegrees;
+
+            if(_this.angleRad < 0) {
+                _this.outerAngleRad = _this.outerAngleRad + 2 * Math.PI;
+                _this.outerAngleDegrees = _this.angleDegrees + 360;
+            }
+
             _this.cosTheta = Math.cos(_this.slope);
             _this.sinTheta = Math.sin(-_this.slope);
 
