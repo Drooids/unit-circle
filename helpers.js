@@ -10,10 +10,11 @@
         
         isEmpty: function(object) {
             if(!this.isObject(object)) {
-                return console.warn("Not an object: " + typeof object);
+                console.warn("Not an object: " + typeof object);
+                return false;
             }
             
-            return Object.keys(object).length;
+            return (Object.keys(object).length > 0);
         }  
     };
     
