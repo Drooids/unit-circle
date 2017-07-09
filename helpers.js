@@ -18,25 +18,27 @@
         }  
     };
     
-    Helpers.prototype.generateId = function(prefix, length) {
-        var text = "";
-        
-        if(length == undefined) {
-            length = 5;
+    Helpers.prototype.util = {
+        generateId: function(prefix, length) {
+            var text = "";
+
+            if(length == undefined) {
+                length = 5;
+            }
+
+            if(prefix != undefined) {
+                text += prefix;
+            }
+
+            var possible = "abcdefghijklmnopqrstuvwxyz0123456789";
+
+            for(var i = 0; i < length; i++)
+                text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+            return text;
         }
-        
-        if(prefix != undefined) {
-            text += prefix;
-        }
-        
-        var possible = "abcdefghijklmnopqrstuvwxyz0123456789";
-    
-        for(var i = 0; i < length; i++)
-            text += possible.charAt(Math.floor(Math.random() * possible.length));
-    
-        return text;
     };
-    
+
     Helpers.prototype.dom = {
         
         // element -> string
