@@ -326,7 +326,7 @@
         }
 
         for(var i = 0; i < parameters.length; i++) {
-            parameters[i]['id'] = Helpers.generateId('unitCircle_');
+            parameters[i]['id'] = Helpers.util.generateId('unitCircle_');
 
             var config = this.config.merge(parameters[i]);
 
